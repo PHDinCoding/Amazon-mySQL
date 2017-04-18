@@ -23,7 +23,7 @@ function viewProducts()
         + "|"+" STOCK LEFT: "+ +results[i].stock_quantity);
         console.log();
         }
-        connection.end();
+        // connection.end();
     })
 }
 
@@ -42,6 +42,80 @@ function lowInventory()
     })
 }
 
+function addQuantToInventory()
+{
+    viewProducts();
+    inquire.prompt([
+        {
+            type: 'list',
+            name: 'id',
+            message: 'Pick an item ID to add its stock',
+            choices: ["1","2","3","4","5","6","7","8","9","10"]
+        },
+        {
+            type: 'input',
+            name: 'qty',
+            message: 'How much stock would you like to add?'
+        }
+
+    ]).then(function(answer){
+        
+
+            connection.query("update products set stock_quantity = stock_quantity + "+answer.qty+" where ?;",[{item_id: answer.id}], 
+            function(error, results){
+            if(error) throw error
+            // console.log(result);
+            console.log("Stock Added!");
+            connection.end();
+
+                })
+
+    })
+    
+}
+
+function addToInventory()
+{
+    inquire.prompt([
+        {
+            type: 'input',
+            name: 'product',
+            message: 'Type the name of the product: '
+        },
+        {
+            type: 'input',
+            name: 'deptName',
+            message: 'Department Name: '
+        },
+        {
+            type: 'input',
+            name: 'price',
+            message: 'Price of the product: '
+        },
+        {
+            type: 'input',
+            name: 'quant',
+            message: 'How much stock to add?'
+        }
+    ]).then(function(answer)
+    {
+        console.log(answer.product);
+         console.log(answer.deptName);
+          console.log(answer.price);
+           console.log(answer.quant);
+
+           
+           var post = {product_name:answer.product, department_name:answer.deptName, price:answer.price, stock_quantity:answer.quant};
+        //    (product_name, department_name, price, stock_quantity)
+           connection.query("insert into products set ?",post,function(error,
+           results){
+               if(error) throw error
+               console.log("Added your item");
+
+               connection.end();
+           })
+    })
+}
 
 
 connection.connect(function(err)
@@ -50,6 +124,7 @@ connection.connect(function(err)
     console.log("Connected with ID: " + connection.threadId);
     // connection.end();
 })
+
 
 inquire.prompt([
     {
@@ -62,7 +137,7 @@ inquire.prompt([
 ]).then(function(answer)
 {
     
-    console.log(answer.menu);
+    // console.log(answer.menu);
     switch(answer.menu)
     {
         case "View Products for Sale":
@@ -75,9 +150,11 @@ inquire.prompt([
             break;
         }case "Add to Inventory":
         {
+            addQuantToInventory();
             break;
         }case "Add New Product":
         {
+            addToInventory();
             break;
         }
     }
